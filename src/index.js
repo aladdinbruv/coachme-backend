@@ -26,6 +26,10 @@ app.use("/api/auth", authRouter);
 app.use("/api/contact", contactRouter);
 app.use("/api/bookings", bookingsRouter);
 
+app.get("/", (req, res) => {
+  res.send("CoachMe Backend is running");
+});
+
 app.get("/api/health", (req, res) =>
   res.json({ status: "ok", db: "postgres" })
 );
