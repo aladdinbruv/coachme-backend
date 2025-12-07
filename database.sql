@@ -33,6 +33,9 @@ CREATE TABLE courses (
     subtitle TEXT,
     price DECIMAL(10, 2) NOT NULL,
     original_price DECIMAL(10, 2),
+    duration VARCHAR(50), -- e.g., '120 Heures'
+    level VARCHAR(50), -- e.g., 'Intermédiaire'
+    badge VARCHAR(50), -- e.g., 'Best Seller'
     rating DECIMAL(3, 2) DEFAULT 0.00,
     students_count INTEGER DEFAULT 0,
     last_updated VARCHAR(50),
@@ -47,6 +50,41 @@ CREATE TABLE course_instructors (
     course_id UUID REFERENCES courses(id) ON DELETE CASCADE,
     instructor_id UUID REFERENCES instructors(id) ON DELETE CASCADE,
     PRIMARY KEY (course_id, instructor_id)
+);
+
+-- 5. Contact Submissions
+CREATE TABLE contact_submissions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    subject VARCHAR(255),
+    message TEXT NOT NULL,
+    status VARCHAR(20) DEFAULT 'new' CHECK (status IN ('new', 'read', 'replied', 'archived')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 6. Bookings
+CREATE TABLE bookings (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    course_id UUID REFERENCES courses(id) ON DELETE SET NULL,
+    booking_date TIMESTAMP WITH TIME ZONE NOT NULL,
+    status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'cancelled', 'completed')),
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 7. Audit Logs
+CREATE TABLE audit_logs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    action VARCHAR(50) NOT NULL,
+    entity_type VARCHAR(50) NOT NULL,
+    entity_id UUID,
+    details JSONB,
+    ip_address VARCHAR(45),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 5. Course Benefits (What you will learn)
